@@ -36,7 +36,7 @@ spec:
       volumes:
       - name: vprodb-data # this volume will get mounted in the volumeMounts section
         awsElasticBlockStore: # we're using EBS
-          volumeID: vol-00a21156718a1af3a
+          volumeID: vol-0d2af2c6d4ecc86be
           # Give the file system type so it should format it with ext4
           fsType: ext4
           # but that's not enough for EBS 
