@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vprodb
+  labels:
+    app: vprodb # we'll use for service definition file
+spec:
+  selector:
+    matchLabels:
+      app: vprodb
+  replicas: 1
+  template: # pod definition 
+    metadata:
+      labels:
+        app: vprodb # our pod will have this label
+    spec:
+      containers:
+      - name: vprodb
+        image: aminedock02/vprofiledb:latest
+        args:
+        - "--ignore-db-dir=lost+found"
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: vprodb-data # name of the volume we created down below
+        ports:
+        - name: vprodb-port
+          containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: app-secret #name of the secret definition file
+              key: db-pass
+      nodeSelector: # label of the node we want our pod to be in
+        zone: us-east-2a
+      volumes:
+      - name: vprodb-data # this volume will get mounted in the volumeMounts section
+        awsElasticBlockStore: # we're using EBS
+          volumeID: vol-00a21156718a1af3a
+          # Give the file system type so it should format it with ext4
+          fsType: ext4
+          # but that's not enough for EBS 
+          #  we need to give a tag to the volume that we want to attach

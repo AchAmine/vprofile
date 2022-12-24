@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: vproapp-service
 spec:
+  type: LoadBalancer
   ports:
-  - port: 80
-    targetPort: vproapp-port
+  - targetPort: 8080 # or vproapp-port
+    port: 80
     protocol: TCP
   selector:
     app: vproapp
-  type: LoadBalancer

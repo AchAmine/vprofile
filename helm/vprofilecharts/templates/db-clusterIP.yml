@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # This name is important , it's the name of our service
+  # and it should be the same name mentioned in application.properties
+  name: vprodb
+spec:
+  type: ClusterIP
+  ports:
+  - targetPort: 3306 # or vprodb-port
+    port: 3306
+    protocol: TCP
+  selector:
+    app: vprodb
