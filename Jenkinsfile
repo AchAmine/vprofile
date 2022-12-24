@@ -3,15 +3,21 @@ pipeline {
     agent any
 /*
 	tools {
-        maven "maven3"
+        maven "Maven 3.8"
     }
 */
     environment {
-        registry = "imranvisualpath/vproappdock"
-        registryCredential = 'dockerhub'
+        registry = "aminedock02/vproapp"
+        registryCredential = 'docker-credentials'
     }
 
     stages{
+         stage('Git fetch') {
+            steps {
+                git branch: 'cicd-kube', 
+                url: 'https://github.com/devopshydclub/vprofile-project'
+            }
+        }
 
         stage('BUILD'){
             steps {
@@ -81,7 +87,7 @@ pipeline {
             }
 
             steps {
-                withSonarQubeEnv('sonar-pro') {
+                withSonarQubeEnv('sonar') {
                     sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
                    -Dsonar.projectName=vprofile-repo \
                    -Dsonar.projectVersion=1.0 \
@@ -92,15 +98,15 @@ pipeline {
                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
                 }
 
-                timeout(time: 10, unit: 'MINUTES') {
+              /*  timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
-                }
+                } */
             }
         }
         stage('Kubernetes Deploy') {
 	  agent { label 'KOPS' }
             steps {
-                    sh "helm upgrade --install --force vproifle-stack helm/vprofilecharts --set appimage=${registry}:${BUILD_NUMBER} --namespace prod"
+                    sh "helm upgrade --install --force vprofile-stack helm/vprofilecharts --set appimage=${registry}:${BUILD_NUMBER} --namespace prod"
             }
         }
 
